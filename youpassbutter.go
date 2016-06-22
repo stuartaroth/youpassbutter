@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -118,16 +119,40 @@ func GetQueryAndParams(r *http.Request) (string, []string, error) {
 	return query, params, nil
 }
 
+type ErrorJson struct {
+	ErrorMessage string
+}
+
+func WriteErrorMessage(w http.ResponseWriter, errorString string) {
+	w.WriteHeader(http.StatusBadRequest)
+	errorJson := ErrorJson{errorString}
+	json, err := json.Marshal(errorJson)
+	if err != nil {
+		fmt.Fprintf(w, "{\"ErrorMessage\":\"Something went wrong\"")
+		return
+	}
+	w.Write(json)
+}
+
 func Handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
 	query, params, err := GetQueryAndParams(r)
 	if err != nil {
-		fmt.Fprintf(w, err.Error())
+		WriteErrorMessage(w, err.Error())
 		return
 	}
 
 	storedQuery, queryIsPresent := queries[query]
 	if !queryIsPresent {
-		fmt.Fprintf(w, "Query is not present")
+		WriteErrorMessage(w, "Passed query is not present in queries.json")
+		return
+	}
+
+	parameterCount := strings.Count(storedQuery, "?")
+	if parameterCount != len(params) {
+		WriteErrorMessage(w, "Count of passed parameters are unequal to expected parameters")
 		return
 	}
 
@@ -138,13 +163,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.Query(storedQuery, paramsInterfaced...)
 	if err != nil {
-		fmt.Fprintf(w, "Something went wrong")
+		WriteErrorMessage(w, err.Error())
 		return
 	}
 
 	columns, err := rows.Columns()
 	if err != nil {
-		fmt.Fprintf(w, "Something with columns")
+		WriteErrorMessage(w, err.Error())
 		return
 	}
 
@@ -160,7 +185,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		err = rows.Scan(destination...)
 		if err != nil {
-
+			WriteErrorMessage(w, err.Error())
+			return
 		}
 
 		for i, raw := range rawResult {
@@ -172,7 +198,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Printf("%#v\n", result)
 	}
-	fmt.Fprintf(w, "You pass butter")
+	WriteErrorMessage(w, "You pass butter")
 }
 
 func main() {
