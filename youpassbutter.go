@@ -124,6 +124,54 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, err.Error())
 		return
 	}
+
+	storedQuery, queryIsPresent := queries[query]
+	if !queryIsPresent {
+		fmt.Fprintf(w, "Query is not present")
+		return
+	}
+
+	paramsInterfaced := make([]interface{}, len(params))
+	for i, v := range params {
+		paramsInterfaced[i] = v
+	}
+
+	rows, err := db.Query(storedQuery, paramsInterfaced...)
+	if err != nil {
+		fmt.Fprintf(w, "Something went wrong")
+		return
+	}
+
+	columns, err := rows.Columns()
+	if err != nil {
+		fmt.Fprintf(w, "Something with columns")
+		return
+	}
+
+	rawResult := make([][]byte, len(columns))
+	result := make([]string, len(columns))
+
+	destination := make([]interface{}, len(columns))
+	for i, _ := range rawResult {
+		destination[i] = &rawResult[i]
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(destination...)
+		if err != nil {
+
+		}
+
+		for i, raw := range rawResult {
+			if raw == nil {
+				result[i] = "\\N"
+			} else {
+				result[i] = string(raw)
+			}
+		}
+		fmt.Printf("%#v\n", result)
+	}
 	fmt.Fprintf(w, "You pass butter")
 }
 
