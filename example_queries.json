@@ -1,0 +1,11 @@
+{
+
+	"create_network": "insert into network (name) values (?);",
+	"create_series":"insert into series (id_network, name) values (?, ?);",
+	"get_networks": "select * from network;",
+	"get_series_by_network_id": "select * from series where id_network = ?;",
+	"update_network": "update network set name = ? where id = ?;",
+	"update_series": "update series set id_network = ?, name = ? where id = ?;",
+	"delete_network": "delete from network where id = ?;",
+	"delete_series": "delete from series where id = ?;"
+}
