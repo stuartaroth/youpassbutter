@@ -2,30 +2,27 @@ drop database if exists youpassbutter;
 create database youpassbutter;
 use youpassbutter;
 
-create table network (
+create table author (
+	id int auto_increment primary key,
+	first_name varchar (255) not null,
+	last_name varchar (255) not null,
+	middle_name varchar (255),
+	unique (first_name, middle_name, last_name)
+);
+
+create table genre (
 	id int auto_increment primary key,
 	name varchar (255) not null,
 	unique (name)
 );
 
-create table series (
+create table book (
 	id int auto_increment primary key,
-	id_network int not null,
-	name varchar (255) not null,
-	unique (name),
-	foreign key (id_network) references network (id)
+	id_author int not null,
+	id_genre int,
+	title varchar (255) not null,
+	year_published int not null,
+	foreign key (id_author) references author (id),
+	foreign key (id_genre) references genre (id),
+	unique (id_author, title, year_published)
 );
-
-insert into network (name) values ('Fox');
-insert into network (name) values ('Cartoon Network');
-insert into network (name) values ('Netflix');
-
-insert into series (id_network, name) values (1, 'Futurama');
-insert into series (id_network, name) values (1, 'Bob\'s Burgers');
-insert into series (id_network, name) values (1, 'The Simpsons');
-
-insert into series (id_network, name) values (2, 'Adventure Time');
-insert into series (id_network, name) values (2, 'Rick and Morty');
-insert into series (id_network, name) values (2, 'The Venture Bros.');
-
-insert into series (id_network, name) values (3, 'BoJack Horseman');

@@ -195,7 +195,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		for i, raw := range rawResult {
 			if raw == nil {
-				result[i] = "\\N"
+				result[i] = ""
 			} else {
 				result[i] = string(raw)
 			}
