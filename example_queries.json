@@ -4,5 +4,8 @@
 	"createGenre": "insert into genre (name) values (?);",
 	"createBook": "insert into book (id_author, title, year_published) values (?, ?, ?);",
 	"createBookWithGenre": "insert into book (id_author, id_genre, title, year_published) values (?, ?, ?, ?);",
-	"getAuthors": "select * from author limit ? offset ?;"
+	"getAuthors": "select * from author order by author.last_name limit ? offset ?;",
+	"getBooks": "select author.id as authorId, author.first_name as authorFirstName, author.middle_name as authorMiddleName, author.last_name as authorLastName, genre.id as genreId, genre.name as genreName, book.id as bookId, book.title as bookTitle, book.year_published as bookYearPublished from book join author on book.id_author = author.id join genre on book.id_genre = genre.id order by book.title limit ? offset ?;",
+	"searchBooksByTitle": "select author.id as authorId, author.first_name as authorFirstName, author.middle_name as authorMiddleName, author.last_name as authorLastName, genre.id as genreId, genre.name as genreName, book.id as bookId, book.title as bookTitle, book.year_published as bookYearPublished from book join author on book.id_author = author.id join genre on book.id_genre = genre.id where book.title like ? order by book.title limit ? offset ?;",
+	"searchBooksByGenre": "select author.id as authorId, author.first_name as authorFirstName, author.middle_name as authorMiddleName, author.last_name as authorLastName, genre.id as genreId, genre.name as genreName, book.id as bookId, book.title as bookTitle, book.year_published as bookYearPublished from book join author on book.id_author = author.id join genre on book.id_genre = genre.id where genre.name like ? order by book.title limit ? offset ?;"
 }

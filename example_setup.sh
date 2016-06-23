@@ -52,3 +52,7 @@ curl "http://localhost:8080?q=createBookWithGenre&p=9&p=3&p=Do+Androids+Dream+Of
 curl "http://localhost:8080?q=createBookWithGenre&p=9&p=3&p=Ubik&p=1969"
 curl "http://localhost:8080?q=createBookWithGenre&p=9&p=3&p=Radio+Free+Albemuth&p=1968"
 
+curl "http://localhost:8080/?q=getAuthors&p=100&p=0"
+curl "http://localhost:8080/?q=getBooks&p=100&p=0"
+curl "http://localhost:8080/?q=searchBooksByGenre&p=%25fantasy%25&p=100&p=0"
+curl "http://localhost:8080/?q=searchBooksByTitle&p=%25the%25&p=100&p=0"
