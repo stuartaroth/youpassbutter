@@ -27,6 +27,8 @@ type Config struct {
 	Port         int
 }
 
+type RowResponse map[string]string
+
 func AssignConfigDefaultValues(config Config) Config {
 	if config.DataHost == "" {
 		config.DataHost = DATA_HOST
@@ -181,6 +183,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		destination[i] = &rawResult[i]
 	}
 
+	response := []map[string]string{}
+
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(destination...)
@@ -196,9 +200,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				result[i] = string(raw)
 			}
 		}
-		fmt.Printf("%#v\n", result)
+		row := make(map[string]string)
+		for i, v := range result {
+			row[columns[i]] = v
+		}
+		response = append(response, row)
 	}
-	WriteErrorMessage(w, "You pass butter")
+
+	js, err := json.Marshal(response)
+	if err != nil {
+		WriteErrorMessage(w, err.Error())
+	}
+
+	w.Write(js)
 }
 
 func main() {
