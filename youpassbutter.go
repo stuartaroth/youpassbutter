@@ -6,7 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -91,8 +91,8 @@ func GetDBConnectionAndQueries() (*sql.DB, Config, map[string]string, error) {
 		return nil, Config{}, nil, err
 	}
 
-	connectionString := fmt.Sprintf("%v:%v@/%v", config.DataUsername, config.DataPassword, config.DataName)
-	db, err := sql.Open("mysql", connectionString)
+	connectionString := fmt.Sprintf("postgres://%v:%v@%v/%v", config.DataUsername, config.DataPassword, config.DataHost, config.DataName)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		return nil, Config{}, nil, err
 	}
@@ -152,7 +152,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parameterCount := strings.Count(storedQuery, "?")
+	parameterCount := strings.Count(storedQuery, "$")
 	if parameterCount != len(params) {
 		WriteErrorMessage(w, "Count of passed parameters are unequal to expected parameters")
 		return

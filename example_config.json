@@ -2,7 +2,7 @@
 	"DataHost": null,
 	"DataPort": null,
 	"DataName": "youpassbutter",
-	"DataUsername": "root",
-	"DataPassword": null,
+	"DataUsername": "postgres",
+	"DataPassword": "raspberry",
 	"Port": null
 }

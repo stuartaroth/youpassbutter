@@ -1,9 +1,9 @@
 drop database if exists youpassbutter;
 create database youpassbutter;
-use youpassbutter;
+\connect youpassbutter;
 
 create table author (
-	id int auto_increment primary key,
+	id serial primary key,
 	first_name varchar (255) not null,
 	last_name varchar (255) not null,
 	middle_name varchar (255),
@@ -11,13 +11,13 @@ create table author (
 );
 
 create table genre (
-	id int auto_increment primary key,
+	id serial primary key,
 	name varchar (255) not null,
 	unique (name)
 );
 
 create table book (
-	id int auto_increment primary key,
+	id serial primary key,
 	id_author int not null,
 	id_genre int,
 	title varchar (255) not null,
