@@ -122,7 +122,7 @@ func GetQueryAndParams(r *http.Request) (string, []string, error) {
 }
 
 type ErrorJson struct {
-	ErrorMessage string
+	Error string
 }
 
 func WriteErrorMessage(w http.ResponseWriter, errorString string) {
@@ -130,10 +130,14 @@ func WriteErrorMessage(w http.ResponseWriter, errorString string) {
 	errorJson := ErrorJson{errorString}
 	json, err := json.Marshal(errorJson)
 	if err != nil {
-		fmt.Fprintf(w, "{\"ErrorMessage\":\"Something went wrong\"")
+		fmt.Fprintf(w, "{\"Error\":\"Something went wrong\"")
 		return
 	}
 	w.Write(json)
+}
+
+func IsSelectQuery(query string) bool {
+	return strings.ToLower(query[0:6]) == "select"
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -163,56 +167,67 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		paramsInterfaced[i] = v
 	}
 
-	rows, err := db.Query(storedQuery, paramsInterfaced...)
-	if err != nil {
-		WriteErrorMessage(w, err.Error())
-		return
-	}
-
-	columns, err := rows.Columns()
-	if err != nil {
-		WriteErrorMessage(w, err.Error())
-		return
-	}
-
-	rawResult := make([][]byte, len(columns))
-	result := make([]string, len(columns))
-
-	destination := make([]interface{}, len(columns))
-	for i, _ := range rawResult {
-		destination[i] = &rawResult[i]
-	}
-
-	response := []map[string]string{}
-
-	defer rows.Close()
-	for rows.Next() {
-		err = rows.Scan(destination...)
+	if IsSelectQuery(storedQuery) {
+		rows, err := db.Query(storedQuery, paramsInterfaced...)
 		if err != nil {
 			WriteErrorMessage(w, err.Error())
 			return
 		}
 
-		for i, raw := range rawResult {
-			if raw == nil {
-				result[i] = ""
-			} else {
-				result[i] = string(raw)
+		columns, err := rows.Columns()
+		if err != nil {
+			WriteErrorMessage(w, err.Error())
+			return
+		}
+
+		rawResult := make([][]byte, len(columns))
+		result := make([]string, len(columns))
+
+		destination := make([]interface{}, len(columns))
+		for i, _ := range rawResult {
+			destination[i] = &rawResult[i]
+		}
+
+		response := []map[string]string{}
+
+		defer rows.Close()
+		for rows.Next() {
+			err = rows.Scan(destination...)
+			if err != nil {
+				WriteErrorMessage(w, err.Error())
+				return
 			}
-		}
-		row := make(map[string]string)
-		for i, v := range result {
-			row[columns[i]] = v
-		}
-		response = append(response, row)
-	}
 
-	js, err := json.Marshal(response)
-	if err != nil {
-		WriteErrorMessage(w, err.Error())
-	}
+			for i, raw := range rawResult {
+				if raw == nil {
+					result[i] = ""
+				} else {
+					result[i] = string(raw)
+				}
+			}
+			row := make(map[string]string)
+			for i, v := range result {
+				row[columns[i]] = v
+			}
+			response = append(response, row)
+		}
 
-	w.Write(js)
+		js, err := json.Marshal(response)
+		if err != nil {
+			WriteErrorMessage(w, err.Error())
+			return
+		}
+
+		w.Write(js)
+	} else {
+		_, err := db.Exec(storedQuery, paramsInterfaced...)
+		if err != nil {
+			WriteErrorMessage(w, err.Error())
+			return
+		}
+
+		fmt.Fprintf(w, "{\"Success\":\"Query executed without errors\"}")
+	}
 }
 
 func main() {
