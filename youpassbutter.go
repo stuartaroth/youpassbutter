@@ -27,8 +27,6 @@ type Config struct {
 	Port         int
 }
 
-type RowResponse map[string]string
-
 func AssignConfigDefaultValues(config Config) Config {
 	if config.DataHost == "" {
 		config.DataHost = DATA_HOST
@@ -181,14 +179,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		rawResult := make([][]byte, len(columns))
-		result := make([]string, len(columns))
+		result := make([]*string, len(columns))
 
 		destination := make([]interface{}, len(columns))
 		for i, _ := range rawResult {
 			destination[i] = &rawResult[i]
 		}
 
-		response := []map[string]string{}
+		response := []map[string]*string{}
 
 		defer rows.Close()
 		for rows.Next() {
@@ -200,12 +198,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 			for i, raw := range rawResult {
 				if raw == nil {
-					result[i] = ""
+					result[i] = nil
 				} else {
-					result[i] = string(raw)
+					temp := string(raw)
+					result[i] = &temp
 				}
 			}
-			row := make(map[string]string)
+			row := make(map[string]*string)
 			for i, v := range result {
 				row[columns[i]] = v
 			}
