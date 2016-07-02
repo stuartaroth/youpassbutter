@@ -85,7 +85,9 @@ Currently the example is running on http://104.236.92.300:8080
 The following links should will give you an idea of how it works:
 
 http://104.236.92.200:8080/?q=searchBooksByTitle&p=the&p=100&p=0
+
 http://104.236.92.200:8080/?q=searchBooksByGenre&p=fantasy&p=100&p=0
+
 http://104.236.92.200:8080?q=createBookWithGenre&p=9&p=3&p=Ubik&p=1969
 
 The last one will fail so you can see what that looks like. You can modify it to test it.
