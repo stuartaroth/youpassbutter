@@ -74,7 +74,7 @@ http://localhost:8080?q=QueryNameInJson&p=FirstParameter&p=SecondParameter&p=Thi
 
 Queries are written as PostgreSQL prepared statments. The first p paramter will replace the $1, the second p parameter will replace the $2 and so on.
 
-Select results will come back as an array of JSON objects. Due to constraints every field will come back as a string but you can convert that in your other backend service.
+Select results will come back as an array of JSON objects.
 
 Other requests will either have a JSON object with a "Success" or an "Error" and an associated message.
 
