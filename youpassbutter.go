@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"strconv"
 )
 
 const (
@@ -138,6 +139,25 @@ func IsSelectQuery(query string) bool {
 	return strings.ToLower(query[0:6]) == "select"
 }
 
+func GetTypedInterface(s string) interface{} {
+	i, err := strconv.Atoi(s)
+	if err == nil {
+		return i
+	}
+
+	f, err := strconv.ParseFloat(s, 64)
+	if err == nil {
+		return f
+	}
+
+	b, err := strconv.ParseBool(s)
+	if err == nil {
+		return b
+	}
+
+	return s
+}
+
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
@@ -179,14 +199,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		rawResult := make([][]byte, len(columns))
-		result := make([]*string, len(columns))
+		result := make([]*interface{}, len(columns))
 
 		destination := make([]interface{}, len(columns))
 		for i, _ := range rawResult {
 			destination[i] = &rawResult[i]
 		}
 
-		response := []map[string]*string{}
+		response := []map[string]*interface{}{}
 
 		defer rows.Close()
 		for rows.Next() {
@@ -200,11 +220,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				if raw == nil {
 					result[i] = nil
 				} else {
-					temp := string(raw)
+					temp := GetTypedInterface(string(raw))
 					result[i] = &temp
 				}
 			}
-			row := make(map[string]*string)
+			row := make(map[string]*interface{})
 			for i, v := range result {
 				row[columns[i]] = v
 			}
