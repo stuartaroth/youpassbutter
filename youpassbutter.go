@@ -9,8 +9,8 @@ import (
 	_ "github.com/lib/pq"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 const (
