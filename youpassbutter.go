@@ -8,6 +8,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,12 +33,15 @@ func AssignConfigDefaultValues(config Config) Config {
 	if config.DataHost == "" {
 		config.DataHost = DATA_HOST
 	}
+
 	if config.DataPort == 0 {
 		config.DataPort = DATA_PORT
 	}
+
 	if config.Port == 0 {
 		config.Port = PORT
 	}
+
 	return config
 }
 
@@ -46,11 +50,13 @@ func GetConfig(filename string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+
 	var config Config
 	err = json.Unmarshal(data, &config)
 	if err != nil {
 		return Config{}, err
 	}
+
 	return AssignConfigDefaultValues(config), nil
 }
 
@@ -59,11 +65,13 @@ func GetQueries(filename string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var queries map[string]string
 	err = json.Unmarshal(data, &queries)
 	if err != nil {
 		return nil, err
 	}
+
 	return queries, nil
 }
 
@@ -76,6 +84,7 @@ func GetFilenames() (string, string, error) {
 	if configFile == "" || queriesFile == "" {
 		return configFile, queriesFile, errors.New("You must specify a config.json and a queries.json file using -c and -q")
 	}
+
 	return configFile, queriesFile, nil
 }
 
@@ -102,7 +111,6 @@ func GetDBConnectionAndQueries() (*sql.DB, Config, map[string]string, error) {
 	}
 
 	return db, config, queries, nil
-
 }
 
 var (
@@ -115,23 +123,31 @@ func GetQueryAndParams(r *http.Request) (string, []string, error) {
 	if len(queries) == 0 {
 		return "", nil, errors.New("You must provide a query (q=)")
 	}
+
 	query := queries[0]
 	params := queryStringMap["p"]
 	return query, params, nil
 }
 
 type ErrorJson struct {
-	Error string
+	Error string `json:"error"`
 }
 
-func WriteErrorMessage(w http.ResponseWriter, errorString string) {
+func LogErrorMessage(w http.ResponseWriter, r *http.Request, errorString string) {
+	log.Println(r.RemoteAddr, r.RequestURI, errorString)
+}
+
+func WriteErrorMessage(w http.ResponseWriter, r *http.Request, errorString string) {
+	LogErrorMessage(w, r, errorString)
+
 	w.WriteHeader(http.StatusBadRequest)
 	errorJson := ErrorJson{errorString}
 	json, err := json.Marshal(errorJson)
 	if err != nil {
-		fmt.Fprintf(w, "{\"Error\":\"Something went wrong\"")
+		fmt.Fprintf(w, "{\"error\":\"Something went wrong\"")
 		return
 	}
+
 	w.Write(json)
 }
 
@@ -164,19 +180,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	query, params, err := GetQueryAndParams(r)
 	if err != nil {
-		WriteErrorMessage(w, err.Error())
+		WriteErrorMessage(w, r, err.Error())
 		return
 	}
 
 	storedQuery, queryIsPresent := queries[query]
 	if !queryIsPresent {
-		WriteErrorMessage(w, "Passed query is not present in queries.json")
+		WriteErrorMessage(w, r, "Passed query is not present in queries.json")
 		return
 	}
 
 	parameterCount := strings.Count(storedQuery, "$")
 	if parameterCount != len(params) {
-		WriteErrorMessage(w, "Count of passed parameters are unequal to expected parameters")
+		WriteErrorMessage(w, r, "Count of passed parameters are unequal to expected parameters")
 		return
 	}
 
@@ -188,13 +204,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	if IsSelectQuery(storedQuery) {
 		rows, err := db.Query(storedQuery, paramsInterfaced...)
 		if err != nil {
-			WriteErrorMessage(w, err.Error())
+			WriteErrorMessage(w, r, err.Error())
 			return
 		}
 
 		columns, err := rows.Columns()
 		if err != nil {
-			WriteErrorMessage(w, err.Error())
+			WriteErrorMessage(w, r, err.Error())
 			return
 		}
 
@@ -212,7 +228,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			err = rows.Scan(destination...)
 			if err != nil {
-				WriteErrorMessage(w, err.Error())
+				WriteErrorMessage(w, r, err.Error())
 				return
 			}
 
@@ -233,7 +249,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(response)
 		if err != nil {
-			WriteErrorMessage(w, err.Error())
+			WriteErrorMessage(w, r, err.Error())
 			return
 		}
 
@@ -241,19 +257,20 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, err := db.Exec(storedQuery, paramsInterfaced...)
 		if err != nil {
-			WriteErrorMessage(w, err.Error())
+			WriteErrorMessage(w, r, err.Error())
 			return
 		}
 
-		fmt.Fprintf(w, "{\"Success\":\"Query executed without errors\"}")
+		fmt.Fprintf(w, "{\"success\":\"Query executed without errors\"}")
 	}
 }
 
 func main() {
 	if startupError != nil {
-		fmt.Println(startupError)
+		log.Fatalln(startupError)
 		return
 	}
+
 	listenPort := fmt.Sprintf(":%d", config.Port)
 	http.HandleFunc("/", Handler)
 	http.ListenAndServe(listenPort, nil)
