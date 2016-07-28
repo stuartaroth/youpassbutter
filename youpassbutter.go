@@ -18,6 +18,7 @@ const (
 	defaultDataHost = "localhost"
 	defaultDataPort = 3306
 	defaultPort     = 8080
+	defaultError    = "{\"error\":\"Something went wrong\""
 )
 
 type serverConfig struct {
@@ -148,11 +149,14 @@ func writeErrorMessage(w http.ResponseWriter, r *http.Request, errorString strin
 	errorJson := errorJson{errorString}
 	json, err := json.Marshal(errorJson)
 	if err != nil {
-		fmt.Fprintf(w, "{\"error\":\"Something went wrong\"")
+		fmt.Fprintf(w, defaultError)
 		return
 	}
 
-	w.Write(json)
+	_, err = w.Write(json)
+	if err != nil {
+		fmt.Fprintf(w, defaultError)
+	}
 }
 
 func isSelectQuery(query string) bool {
@@ -222,7 +226,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		result := make([]*interface{}, len(columns))
 
 		destination := make([]interface{}, len(columns))
-		for i, _ := range rawResult {
+		for i := range rawResult {
 			destination[i] = &rawResult[i]
 		}
 
@@ -258,7 +262,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		logInfoMessage(r, response)
-		w.Write(js)
+		_, err = w.Write(js)
+		if err != nil {
+			writeErrorMessage(w, r, err.Error())
+			return
+		}
+
 	} else {
 		result, err := db.Exec(storedQuery, paramsInterfaced...)
 		if err != nil {
@@ -279,5 +288,8 @@ func main() {
 
 	listenPort := fmt.Sprintf(":%d", config.Port)
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(listenPort, nil)
+	err := http.ListenAndServe(listenPort, nil)
+	if err != nil {
+		log.Fatalln(startupError)
+	}
 }
