@@ -55,7 +55,7 @@ Modify the example_config.json according to your database access needs.
 Then run the following commands to get the server running:
 
 ```shell
-go build youpassbutter.go
+./build
 ./youpassbutter -c example_config.json -q example_queries.json
 ```
 
