@@ -133,12 +133,16 @@ type ErrorJson struct {
 	Error string `json:"error"`
 }
 
-func LogErrorMessage(w http.ResponseWriter, r *http.Request, errorString string) {
-	log.Println(r.RemoteAddr, r.RequestURI, errorString)
+func LogErrorMessage(r *http.Request, errorString string) {
+	log.Println("ERROR", r.RemoteAddr, r.RequestURI, errorString)
+}
+
+func LogInfoMessage(r *http.Request, response interface{}) {
+	log.Println("INFO", r.RemoteAddr, r.RequestURI, response)
 }
 
 func WriteErrorMessage(w http.ResponseWriter, r *http.Request, errorString string) {
-	LogErrorMessage(w, r, errorString)
+	LogErrorMessage(r, errorString)
 
 	w.WriteHeader(http.StatusBadRequest)
 	errorJson := ErrorJson{errorString}
@@ -253,14 +257,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		LogInfoMessage(r, response)
 		w.Write(js)
 	} else {
-		_, err := db.Exec(storedQuery, paramsInterfaced...)
+		result, err := db.Exec(storedQuery, paramsInterfaced...)
 		if err != nil {
 			WriteErrorMessage(w, r, err.Error())
 			return
 		}
 
+		log.Println(r, result)
 		fmt.Fprintf(w, "{\"success\":\"Query executed without errors\"}")
 	}
 }
