@@ -1,4 +1,6 @@
-# youpassbutter
+# youpassbutter [![Go Report Card](https://goreportcard.com/badge/github.com/stuartaroth/youpassbutter)](https://goreportcard.com/report/github.com/stuartaroth/youpassbutter)
+
+
 
 #### The simple data service
 
