@@ -1,0 +1,1 @@
+go fmt *.go && go build youpassbutter.go && go test
