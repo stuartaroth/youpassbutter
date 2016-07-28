@@ -15,52 +15,52 @@ import (
 )
 
 const (
-	DATA_HOST = "localhost"
-	DATA_PORT = 3306
-	PORT      = 8080
+	defaultDataHost = "localhost"
+	defaultDataPort = 3306
+	defaultPort     = 8080
 )
 
-type Config struct {
-	DataHost     string
-	DataPort     int
-	DataName     string
-	DataUsername string
-	DataPassword string
-	Port         int
+type serverConfig struct {
+	DataHost     string `json:"dataHost"`
+	DataPort     int    `json:"dataPort"`
+	DataName     string `json:"dataName"`
+	DataUsername string `json:"dataUsername"`
+	DataPassword string `json:"dataPassword"`
+	Port         int    `json:"port"`
 }
 
-func AssignConfigDefaultValues(config Config) Config {
+func assignServerConfigDefaultValues(config serverConfig) serverConfig {
 	if config.DataHost == "" {
-		config.DataHost = DATA_HOST
+		config.DataHost = defaultDataHost
 	}
 
 	if config.DataPort == 0 {
-		config.DataPort = DATA_PORT
+		config.DataPort = defaultDataPort
 	}
 
 	if config.Port == 0 {
-		config.Port = PORT
+		config.Port = defaultPort
 	}
 
 	return config
 }
 
-func GetConfig(filename string) (Config, error) {
+func getServerConfig(filename string) (serverConfig, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return Config{}, err
+		return serverConfig{}, err
 	}
 
-	var config Config
+	var config serverConfig
 	err = json.Unmarshal(data, &config)
 	if err != nil {
-		return Config{}, err
+		return serverConfig{}, err
 	}
 
-	return AssignConfigDefaultValues(config), nil
+	return assignServerConfigDefaultValues(config), nil
 }
 
-func GetQueries(filename string) (map[string]string, error) {
+func getQueries(filename string) (map[string]string, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func GetQueries(filename string) (map[string]string, error) {
 	return queries, nil
 }
 
-func GetFilenames() (string, string, error) {
+func getFilenames() (string, string, error) {
 	var configFile string
 	var queriesFile string
 	flag.StringVar(&configFile, "c", "", "config.json file")
@@ -88,36 +88,36 @@ func GetFilenames() (string, string, error) {
 	return configFile, queriesFile, nil
 }
 
-func GetDBConnectionAndQueries() (*sql.DB, Config, map[string]string, error) {
-	configFile, queriesFile, err := GetFilenames()
+func getDBConnectionAndQueries() (*sql.DB, serverConfig, map[string]string, error) {
+	configFile, queriesFile, err := getFilenames()
 	if err != nil {
-		return nil, Config{}, nil, err
+		return nil, serverConfig{}, nil, err
 	}
 
-	config, err := GetConfig(configFile)
+	config, err := getServerConfig(configFile)
 	if err != nil {
-		return nil, Config{}, nil, err
+		return nil, serverConfig{}, nil, err
 	}
 
 	connectionString := fmt.Sprintf("postgres://%v:%v@%v/%v", config.DataUsername, config.DataPassword, config.DataHost, config.DataName)
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
-		return nil, Config{}, nil, err
+		return nil, serverConfig{}, nil, err
 	}
 
-	queries, err := GetQueries(queriesFile)
+	queries, err := getQueries(queriesFile)
 	if err != nil {
-		return nil, Config{}, nil, err
+		return nil, serverConfig{}, nil, err
 	}
 
 	return db, config, queries, nil
 }
 
 var (
-	db, config, queries, startupError = GetDBConnectionAndQueries()
+	db, config, queries, startupError = getDBConnectionAndQueries()
 )
 
-func GetQueryAndParams(r *http.Request) (string, []string, error) {
+func getQueryAndParams(r *http.Request) (string, []string, error) {
 	queryStringMap := r.URL.Query()
 	queries := queryStringMap["q"]
 	if len(queries) == 0 {
@@ -129,23 +129,23 @@ func GetQueryAndParams(r *http.Request) (string, []string, error) {
 	return query, params, nil
 }
 
-type ErrorJson struct {
+type errorJson struct {
 	Error string `json:"error"`
 }
 
-func LogErrorMessage(r *http.Request, errorString string) {
+func logErrorMessage(r *http.Request, errorString string) {
 	log.Println("ERROR", r.RemoteAddr, r.RequestURI, errorString)
 }
 
-func LogInfoMessage(r *http.Request, response interface{}) {
+func logInfoMessage(r *http.Request, response interface{}) {
 	log.Println("INFO", r.RemoteAddr, r.RequestURI, response)
 }
 
-func WriteErrorMessage(w http.ResponseWriter, r *http.Request, errorString string) {
-	LogErrorMessage(r, errorString)
+func writeErrorMessage(w http.ResponseWriter, r *http.Request, errorString string) {
+	logErrorMessage(r, errorString)
 
 	w.WriteHeader(http.StatusBadRequest)
-	errorJson := ErrorJson{errorString}
+	errorJson := errorJson{errorString}
 	json, err := json.Marshal(errorJson)
 	if err != nil {
 		fmt.Fprintf(w, "{\"error\":\"Something went wrong\"")
@@ -155,11 +155,11 @@ func WriteErrorMessage(w http.ResponseWriter, r *http.Request, errorString strin
 	w.Write(json)
 }
 
-func IsSelectQuery(query string) bool {
+func isSelectQuery(query string) bool {
 	return strings.ToLower(query[0:6]) == "select"
 }
 
-func GetTypedInterface(s string) interface{} {
+func getTypedInterface(s string) interface{} {
 	i, err := strconv.Atoi(s)
 	if err == nil {
 		return i
@@ -178,25 +178,25 @@ func GetTypedInterface(s string) interface{} {
 	return s
 }
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
-	query, params, err := GetQueryAndParams(r)
+	query, params, err := getQueryAndParams(r)
 	if err != nil {
-		WriteErrorMessage(w, r, err.Error())
+		writeErrorMessage(w, r, err.Error())
 		return
 	}
 
 	storedQuery, queryIsPresent := queries[query]
 	if !queryIsPresent {
-		WriteErrorMessage(w, r, "Passed query is not present in queries.json")
+		writeErrorMessage(w, r, "Passed query is not present in queries.json")
 		return
 	}
 
 	parameterCount := strings.Count(storedQuery, "$")
 	if parameterCount != len(params) {
-		WriteErrorMessage(w, r, "Count of passed parameters are unequal to expected parameters")
+		writeErrorMessage(w, r, "Count of passed parameters are unequal to expected parameters")
 		return
 	}
 
@@ -205,16 +205,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		paramsInterfaced[i] = v
 	}
 
-	if IsSelectQuery(storedQuery) {
+	if isSelectQuery(storedQuery) {
 		rows, err := db.Query(storedQuery, paramsInterfaced...)
 		if err != nil {
-			WriteErrorMessage(w, r, err.Error())
+			writeErrorMessage(w, r, err.Error())
 			return
 		}
 
 		columns, err := rows.Columns()
 		if err != nil {
-			WriteErrorMessage(w, r, err.Error())
+			writeErrorMessage(w, r, err.Error())
 			return
 		}
 
@@ -232,7 +232,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			err = rows.Scan(destination...)
 			if err != nil {
-				WriteErrorMessage(w, r, err.Error())
+				writeErrorMessage(w, r, err.Error())
 				return
 			}
 
@@ -240,7 +240,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				if raw == nil {
 					result[i] = nil
 				} else {
-					temp := GetTypedInterface(string(raw))
+					temp := getTypedInterface(string(raw))
 					result[i] = &temp
 				}
 			}
@@ -253,16 +253,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(response)
 		if err != nil {
-			WriteErrorMessage(w, r, err.Error())
+			writeErrorMessage(w, r, err.Error())
 			return
 		}
 
-		LogInfoMessage(r, response)
+		logInfoMessage(r, response)
 		w.Write(js)
 	} else {
 		result, err := db.Exec(storedQuery, paramsInterfaced...)
 		if err != nil {
-			WriteErrorMessage(w, r, err.Error())
+			writeErrorMessage(w, r, err.Error())
 			return
 		}
 
@@ -278,6 +278,6 @@ func main() {
 	}
 
 	listenPort := fmt.Sprintf(":%d", config.Port)
-	http.HandleFunc("/", Handler)
+	http.HandleFunc("/", handler)
 	http.ListenAndServe(listenPort, nil)
 }

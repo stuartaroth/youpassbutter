@@ -1,8 +1,8 @@
 {
-	"DataHost": null,
-	"DataPort": null,
-	"DataName": "youpassbutter",
-	"DataUsername": "postgres",
-	"DataPassword": "raspberry",
-	"Port": null
+	"dataHost": null,
+	"dataPort": null,
+	"dataName": "youpassbutter",
+	"dataUsername": "postgres",
+	"dataPassword": "raspberry",
+	"port": null
 }

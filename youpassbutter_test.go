@@ -23,8 +23,8 @@ func getRequestWithoutQParam() *http.Request {
 }
 
 func TestAssignConfigDefaultValues_withoutValues(t *testing.T) {
-	blankConfig := Config{"", 0, "", "", "", 0}
-	c := AssignConfigDefaultValues(blankConfig)
+	blankConfig := serverConfig{"", 0, "", "", "", 0}
+	c := assignServerConfigDefaultValues(blankConfig)
 
 	if c.DataHost != "localhost" {
 		t.Log("DataHost was not set to value localhost")
@@ -43,8 +43,8 @@ func TestAssignConfigDefaultValues_withoutValues(t *testing.T) {
 }
 
 func TestAssignConfigDefaultValues_withValues(t *testing.T) {
-	blankConfig := Config{"127.0.0.1", 3434, "", "", "", 8888}
-	c := AssignConfigDefaultValues(blankConfig)
+	blankConfig := serverConfig{"127.0.0.1", 3434, "", "", "", 8888}
+	c := assignServerConfigDefaultValues(blankConfig)
 
 	if c.DataHost != "127.0.0.1" {
 		t.Log("DataHost was changed from value 127.0.0.1")
@@ -64,7 +64,7 @@ func TestAssignConfigDefaultValues_withValues(t *testing.T) {
 
 func TestQueryAndParams_withoutQParam(t *testing.T) {
 	r := getRequestWithoutQParam()
-	_, _, err := GetQueryAndParams(r)
+	_, _, err := getQueryAndParams(r)
 
 	if err == nil {
 		t.Log("err should be != nil when no q parameter is passed")
@@ -74,7 +74,7 @@ func TestQueryAndParams_withoutQParam(t *testing.T) {
 
 func TestQueryAndParams_withQParam(t *testing.T) {
 	r := getRequestWithQParam()
-	query, params, err := GetQueryAndParams(r)
+	query, params, err := getQueryAndParams(r)
 
 	if err != nil {
 		t.Log("err should be == nil when q parameter is passed")
@@ -93,21 +93,21 @@ func TestQueryAndParams_withQParam(t *testing.T) {
 }
 
 func TestIsSelectQuery_isSelect(t *testing.T) {
-	if !IsSelectQuery("SELECT * FROM book") {
+	if !isSelectQuery("SELECT * FROM book") {
 		t.Log("SELECT at the start of a string should return true")
 		t.Fail()
 	}
 }
 
 func TestIsSelectQuery_isNotSelect(t *testing.T) {
-	if IsSelectQuery("DELETE FROM book") {
+	if isSelectQuery("DELETE FROM book") {
 		t.Log("not SELECT at the start of a string should return false")
 		t.Fail()
 	}
 }
 
 func TestGetTypedInterface_int(t *testing.T) {
-	i := GetTypedInterface("13")
+	i := getTypedInterface("13")
 	if i != 13 {
 		t.Log("string '13' should become int 13")
 		t.Fail()
@@ -115,7 +115,7 @@ func TestGetTypedInterface_int(t *testing.T) {
 }
 
 func TestGetTypedInterface_float(t *testing.T) {
-	f := GetTypedInterface("7.89")
+	f := getTypedInterface("7.89")
 	if f != 7.89 {
 		t.Log("string '7.89' should become float 7.89")
 		t.Fail()
@@ -123,7 +123,7 @@ func TestGetTypedInterface_float(t *testing.T) {
 }
 
 func TestGetTypedInterface_bool(t *testing.T) {
-	b := GetTypedInterface("t")
+	b := getTypedInterface("t")
 	if b != true {
 		t.Log("string 't' should become bool true")
 		t.Fail()
@@ -131,7 +131,7 @@ func TestGetTypedInterface_bool(t *testing.T) {
 }
 
 func TestGetTypedInterface_string(t *testing.T) {
-	s := GetTypedInterface("butter")
+	s := getTypedInterface("butter")
 	if s != "butter" {
 		t.Log("string 'butter' should become string 'butter'")
 		t.Fail()
