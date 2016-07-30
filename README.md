@@ -1,10 +1,6 @@
 # youpassbutter [![Go Report Card](https://goreportcard.com/badge/github.com/stuartaroth/youpassbutter)](https://goreportcard.com/report/github.com/stuartaroth/youpassbutter)
 
-
-
-#### The simple data service
-
-**youpassbutter** is SQL data service with a simple premise: Write all your queries in one place and get the results anywhere as JSON by using HTTP GET calls.
+**youpassbutter** is PostgreSQL data service with a simple premise: Write all your queries in one place and get the results anywhere as JSON by using HTTP GET calls.
 
 There are several reasons why you should consider using **youpassbutter**
 
@@ -97,4 +93,3 @@ The last one will fail so you can see what that looks like. You can modify it to
 #### Questions / issues
 
 This project is still in development and therefore not perfect. Please report any issues or questions you have through the issues tab of the repo. I would love your feedback!
-
