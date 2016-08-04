@@ -138,7 +138,7 @@ func logErrorMessage(r *http.Request, errorString string) {
 	log.Println("ERROR", r.RemoteAddr, r.RequestURI, errorString)
 }
 
-func logInfoMessage(r *http.Request, response interface{}) {
+func logInfoMessage(r *http.Request, response string) {
 	log.Println("INFO", r.RemoteAddr, r.RequestURI, response)
 }
 
@@ -261,7 +261,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		logInfoMessage(r, response)
+		logInfoMessage(r, string(js))
 		_, err = w.Write(js)
 		if err != nil {
 			writeErrorMessage(w, r, err.Error())
@@ -269,13 +269,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		result, err := db.Exec(storedQuery, paramsInterfaced...)
+		_, err := db.Exec(storedQuery, paramsInterfaced...)
 		if err != nil {
 			writeErrorMessage(w, r, err.Error())
 			return
 		}
 
-		log.Println(r, result)
+		logInfoMessage(r, "Query executed without errors")
 		fmt.Fprintf(w, "{\"success\":\"Query executed without errors\"}")
 	}
 }
