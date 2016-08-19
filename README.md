@@ -1,6 +1,6 @@
 # youpassbutter [![Go Report Card](https://goreportcard.com/badge/github.com/stuartaroth/youpassbutter)](https://goreportcard.com/report/github.com/stuartaroth/youpassbutter)
 
-**youpassbutter** is PostgreSQL data service with a simple premise: Write all your queries in one place and get the results anywhere as JSON by using HTTP GET calls.
+**youpassbutter** is PostgreSQL data service with a simple premise: Write all your queries in one place and get the results anywhere as JSON by using HTTP POST calls.
 
 There are several reasons why you should consider using **youpassbutter**
 
@@ -68,27 +68,14 @@ Now you can use the queries in your example_queries.json to access the data.
 
 Access calls follow a simple format:
 
-http://localhost:8080?q=QueryNameInJson&p=FirstParameter&p=SecondParameter&p=ThirdParameter
+POST http://localhost:8080?q=queryNameInJson
+JSON [FirstParameter, SecondParameter, ThirdParameter]
 
-Queries are written as PostgreSQL prepared statments. The first p paramter will replace the $1, the second p parameter will replace the $2 and so on.
+Queries are written as PostgreSQL prepared statments. The first item in the JSON array paramter will replace the $1, the second will replace the $2 and so on.
 
 Select results will come back as an array of JSON objects.
 
 Other requests will either have a JSON object with a "Success" or an "Error" and an associated message.
-
-#### Online demo
-
-Currently the example is running on http://104.236.92.300:8080
-
-The following links should will give you an idea of how it works:
-
-http://104.236.92.200:8080/?q=searchBooksByTitle&p=the&p=100&p=0
-
-http://104.236.92.200:8080/?q=searchBooksByGenre&p=fantasy&p=100&p=0
-
-http://104.236.92.200:8080?q=createBookWithGenre&p=9&p=3&p=Ubik&p=1969
-
-The last one will fail so you can see what that looks like. You can modify it to test it.
 
 #### Questions / issues
 

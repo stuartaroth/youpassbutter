@@ -118,7 +118,7 @@ var (
 	db, config, queries, startupError = getDBConnectionAndQueries()
 )
 
-func getQueryAndParams(r *http.Request) (string, []string, error) {
+func getQueryAndParams(r *http.Request) (string, []interface{}, error) {
 	queryStringMap := r.URL.Query()
 	queries := queryStringMap["q"]
 	if len(queries) == 0 {
@@ -126,7 +126,19 @@ func getQueryAndParams(r *http.Request) (string, []string, error) {
 	}
 
 	query := queries[0]
-	params := queryStringMap["p"]
+
+	defer r.Body.Close()
+	bits, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return "", nil, err
+	}
+
+	var params []interface{}
+	err = json.Unmarshal(bits, &params)
+	if err != nil {
+		return "", nil, err
+	}
+
 	return query, params, nil
 }
 
@@ -185,6 +197,11 @@ func getTypedInterface(s string) interface{} {
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != "POST" {
+		writeErrorMessage(w, r, "Only POST allowed")
+		return
+	}
 
 	query, params, err := getQueryAndParams(r)
 	if err != nil {

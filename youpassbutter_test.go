@@ -6,14 +6,6 @@ import (
 	"testing"
 )
 
-func getRequestWithQParam() *http.Request {
-	u := url.URL{}
-	u.RawQuery = "q=query&p=parameter1&p=parameter2"
-	r := http.Request{}
-	r.URL = &u
-	return &r
-}
-
 func getRequestWithoutQParam() *http.Request {
 	u := url.URL{}
 	u.RawQuery = "p=1&p=2"
@@ -68,26 +60,6 @@ func TestQueryAndParams_withoutQParam(t *testing.T) {
 
 	if err == nil {
 		t.Log("err should be != nil when no q parameter is passed")
-		t.Fail()
-	}
-}
-
-func TestQueryAndParams_withQParam(t *testing.T) {
-	r := getRequestWithQParam()
-	query, params, err := getQueryAndParams(r)
-
-	if err != nil {
-		t.Log("err should be == nil when q parameter is passed")
-		t.Fail()
-	}
-
-	if query != "query" {
-		t.Log("query should == query when it is passed as the q parameter")
-		t.Fail()
-	}
-
-	if params[0] != "parameter1" || params[1] != "parameter2" {
-		t.Log("params should have parameter1 and parameter2 as items in slice")
 		t.Fail()
 	}
 }

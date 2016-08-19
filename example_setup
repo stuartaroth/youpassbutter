@@ -1,59 +1,60 @@
-curl "http://localhost:8080?q=createAuthor&p=Stephen&p=King"
-curl "http://localhost:8080?q=createAuthor&p=Richard&p=Matheson"
-curl "http://localhost:8080?q=createAuthorWithMiddle&p=William&p=Peter&p=Blatty"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthor -d '["Stephen", "King"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthor -d '["Richard", "Matheson"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthorWithMiddle -d '["William", "Peter", "Blatty"]'
 
-curl "http://localhost:8080?q=createAuthor&p=J.R.R.&p=Tolkien"
-curl "http://localhost:8080?q=createAuthor&p=Robert&p=Jordan"
-curl "http://localhost:8080?q=createAuthorWithMiddle&p=George&p=R.R.&p=Martin"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthor -d '["J.R.R.", "Tolkien"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthor -d '["Robert", "Jordan"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthorWithMiddle -d '["George", "R.R.", "Martin"]'
 
-curl "http://localhost:8080?q=createAuthor&p=Frank&p=Herbert"
-curl "http://localhost:8080?q=createAuthor&p=Isaac&p=Asimov"
-curl "http://localhost:8080?q=createAuthorWithMiddle&p=Philip&p=K&p=Dick"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthor -d '["Frank", "Herbert"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthor -d '["Isaac", "Asimov"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createAuthorWithMiddle -d '["Philip", "K.", "Dick"]'
 
-curl "http://localhost:8080?q=createGenre&p=Horror"
-curl "http://localhost:8080?q=createGenre&p=Fantasy"
-curl "http://localhost:8080?q=createGenre&p=Science+Fiction"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createGenre -d '["Horror"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createGenre -d '["Fantasy"]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createGenre -d '["Science Fiction"]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=1&p=1&p=It&p=1986"
-curl "http://localhost:8080?q=createBookWithGenre&p=1&p=1&p=Misery&p=1987"
-curl "http://localhost:8080?q=createBookWithGenre&p=1&p=1&p=The+Stand&p=1978"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[1, 1, "It", 1986]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[1, 1, "Misery", 1987]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[1, 1, "The Stand", 1978]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=2&p=1&p=Hell+House&p=1971"
-curl "http://localhost:8080?q=createBookWithGenre&p=2&p=1&p=I+Am+Legend&p=1954"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[2, 1, "Hell House", 1971]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[2, 1, "I Am Legend", 1954]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=3&p=1&p=The+Exorcist&p=1971"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[3, 1, "The Exorcist", 1971]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=4&p=2&p=The+Fellowship+of+the+Ring&p=1954"
-curl "http://localhost:8080?q=createBookWithGenre&p=4&p=2&p=The+Two+Towers&p=1954"
-curl "http://localhost:8080?q=createBookWithGenre&p=4&p=2&p=The+Return+of+the+King&p=1955"
-curl "http://localhost:8080?q=createBookWithGenre&p=4&p=2&p=The+Hobbit&p=1937"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[4, 2, "The Fellowship of the Ring", 1954]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[4, 2, "The Two Towers", 1954]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[4, 2, "The Return of the King", 1955]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[4, 2, "The Hobbit", 1937]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=5&p=2&p=The+Eye+of+the+World&p=1990"
-curl "http://localhost:8080?q=createBookWithGenre&p=5&p=2&p=The+Great+Hunt&p=1990"
-curl "http://localhost:8080?q=createBookWithGenre&p=5&p=2&p=The+Dragon+Reborn&p=1991"
-curl "http://localhost:8080?q=createBookWithGenre&p=5&p=2&p=The+Shadow+Rising&p=1992"
-curl "http://localhost:8080?q=createBookWithGenre&p=5&p=2&p=The+Fires+of+Heaven&p=1993"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[5, 2, "The Eye of the World", 1990]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[5, 2, "The Great Hunt", 1990]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[5, 2, "The Dragon Reborn", 1991]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[5, 2, "The Shadow Rising", 1992]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[5, 2, "The Fires of Heaven", 1993]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=6&p=2&p=A+Game+of+Thrones&p=1996"
-curl "http://localhost:8080?q=createBookWithGenre&p=6&p=2&p=A+Clash+of+Kings&p=1998"
-curl "http://localhost:8080?q=createBookWithGenre&p=6&p=2&p=A+Storm+of+Swords&p=2000"
-curl "http://localhost:8080?q=createBookWithGenre&p=6&p=2&p=A+Feast+for+Crows&p=2005"
-curl "http://localhost:8080?q=createBookWithGenre&p=6&p=2&p=A+Dance+with+Dragons&p=2011"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[6, 2, "A Game of Thrones", 1996]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[6, 2, "A Clash of Kings", 1998]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[6, 2, "A Storm of Swords", 2000]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[6, 2, "A Feast for Crows", 2005]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[6, 2, "A Dance with Dragons", 2011]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=7&p=3&p=Dune&p=1965"
-curl "http://localhost:8080?q=createBookWithGenre&p=7&p=3&p=Destination:+Void&p=1966"
-curl "http://localhost:8080?q=createBookWithGenre&p=7&p=3&p=The+White+Plague&p=1982"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[7, 3, "Dune", 1965]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[7, 3, "Destination: Void", 1966]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[7, 3, "The White Plague", 1982]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=8&p=3&p=Pebble+in+the+sky&p=1950"
-curl "http://localhost:8080?q=createBookWithGenre&p=8&p=3&p=Foundation&p=1951"
-curl "http://localhost:8080?q=createBookWithGenre&p=8&p=3&p=The+Caves+of+Steel&p=1953"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[8, 3, "Pebble in the sky", 1950]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[8, 3, "Foundation", 1951]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[8, 3, "The Caves of Steel", 1953]'
 
-curl "http://localhost:8080?q=createBookWithGenre&p=9&p=3&p=Do+Androids+Dream+Of+Electric+Sheep&p=1968"
-curl "http://localhost:8080?q=createBookWithGenre&p=9&p=3&p=Ubik&p=1969"
-curl "http://localhost:8080?q=createBookWithGenre&p=9&p=3&p=Radio+Free+Albemuth&p=1968"
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[9, 3, "Do Androids Dream Of Electric Sheep", 1968]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[9, 3, "Ubik", 1969]'
+curl -H "Content-Type: application/json" http://localhost:8080?q=createBookWithGenre -d '[9, 3, "Radio Free Albemuth", 1968]'
 
-curl "http://localhost:8080/?q=getAuthors&p=100&p=0"
-curl "http://localhost:8080/?q=getBooks&p=100&p=0"
-curl "http://localhost:8080/?q=searchBooksByGenre&p=fantasy&p=100&p=0"
-curl "http://localhost:8080/?q=searchBooksByTitle&p=the&p=100&p=0"
-curl "http://localhost:8080/?q=getBooksByAuthorId&p=6&p=100&p=0"
+curl -H "Content-Type: application/json" http://localhost:8080/?q=getAuthors -d '[100, 0]'
+curl -H "Content-Type: application/json" http://localhost:8080/?q=getBooks -d '[100, 0]'
+curl -H "Content-Type: application/json" http://localhost:8080/?q=searchBooksByGenre -d '["fantasy", 100, 0]'
+curl -H "Content-Type: application/json" http://localhost:8080/?q=searchBooksByTitle -d '["the", 100, 0]'
+curl -H "Content-Type: application/json" http://localhost:8080/?q=getBooksByAuthorId -d '[6, 100, 0]'
+curl -H "Content-Type: application/json" http://localhost:8080/?q=getAllBooks -d '[]'
