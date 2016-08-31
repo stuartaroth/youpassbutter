@@ -30,6 +30,39 @@ type serverConfig struct {
 	Port         int    `json:"port"`
 }
 
+type execResponse struct {
+	Success      string `json:"success"`
+	LastInsertId *int64 `json:"lastInsertId"`
+	RowsAffected *int64 `json:"rowsAffected"`
+}
+
+func getExecResponse(result sql.Result) ([]byte, error) {
+	var lastInsertIdPointer *int64
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		lastInsertIdPointer = nil
+	} else {
+		lastInsertIdPointer = &lastInsertId
+	}
+
+	var rowsAffectedPointer *int64
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		rowsAffectedPointer = nil
+	} else {
+		rowsAffectedPointer = &rowsAffected
+	}
+
+	response := execResponse{"Query executed without errors", lastInsertIdPointer, rowsAffectedPointer}
+
+	bits, err := json.Marshal(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return bits, nil
+}
+
 func assignServerConfigDefaultValues(config serverConfig) serverConfig {
 	if config.DataHost == "" {
 		config.DataHost = defaultDataHost
@@ -286,14 +319,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		_, err := db.Exec(storedQuery, paramsInterfaced...)
+		result, err := db.Exec(storedQuery, paramsInterfaced...)
 		if err != nil {
 			writeErrorMessage(w, r, err.Error())
 			return
 		}
 
-		logInfoMessage(r, "Query executed without errors")
-		fmt.Fprintf(w, "{\"success\":\"Query executed without errors\"}")
+		js, err := getExecResponse(result)
+		if err != nil {
+			writeErrorMessage(w, r, err.Error())
+			return
+		}
+
+		w.Write(js)
 	}
 }
 
