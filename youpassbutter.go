@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -227,6 +228,19 @@ func getTypedInterface(s string) interface{} {
 	return s
 }
 
+var (
+	paramRe = regexp.MustCompile("\\$\\d+")
+)
+
+func getParameterCount(storedQuery string) int {
+	matches := paramRe.FindAllString(storedQuery, -1)
+	mapped := make(map[string]bool)
+	for _, match := range matches {
+		mapped[match] = true
+	}
+	return len(mapped)
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
@@ -248,7 +262,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parameterCount := strings.Count(storedQuery, "$")
+	parameterCount := getParameterCount(storedQuery)
 	if parameterCount != len(params) {
 		writeErrorMessage(w, r, "Count of passed parameters are unequal to expected parameters")
 		return
